@@ -1,233 +1,261 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+        content="width=device-width, initial-scale=1.0"
     >
 
     <title>Web CCTV</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="./style.css?v=3"
+    >
 
-    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 </head>
+
 
 <body>
 
-<div class="app">
+    <!-- =====================================================
+         LOGIN
+    ====================================================== -->
 
-    <div class="topbar">
+    <div
+        id="loginScreen"
+        class="screen"
+    >
 
-        <div class="title">
-            📹 WEB CCTV
+        <div class="loginBox">
+
+            <h1>📹 Web CCTV</h1>
+
+            <p class="subtitle">
+                Enter the same password on both devices.
+            </p>
+
+
+            <input
+                id="password"
+                type="password"
+                placeholder="CCTV password"
+                autocomplete="off"
+            >
+
+
+            <button
+                id="cameraButton"
+                class="mainButton"
+            >
+                📱 Use as Camera
+            </button>
+
+
+            <button
+                id="monitorButton"
+                class="mainButton monitorButton"
+            >
+                💻 Use as Monitor
+            </button>
+
+
+            <div
+                id="error"
+                class="error"
+            ></div>
+
         </div>
 
-        <div id="status" class="status">
+    </div>
+
+
+    <!-- =====================================================
+         PHONE CAMERA
+    ====================================================== -->
+
+    <div
+        id="cameraScreen"
+        class="screen hidden"
+    >
+
+        <div class="topBar">
+
+            <div>
+                📱 CAMERA
+            </div>
+
+            <div
+                id="cameraClock"
+                class="clock"
+            >
+                00:00:00
+            </div>
+
+        </div>
+
+
+        <div class="cameraContainer">
+
+            <video
+                id="localVideo"
+                autoplay
+                muted
+                playsinline
+            ></video>
+
+
+            <div
+                id="cameraConnection"
+                class="connection"
+            >
+                Starting camera...
+            </div>
+
+        </div>
+
+
+        <div class="cameraControls">
+
+            <button
+                id="flipCamera"
+                class="controlButton"
+            >
+                🔄 Flip Camera
+            </button>
+
+
+            <button
+                id="cameraStop"
+                class="controlButton stopButton"
+            >
+                ❌ Disconnect
+            </button>
+
+        </div>
+
+
+        <div
+            id="status"
+            class="status"
+        >
             OFFLINE
         </div>
 
     </div>
 
 
-    <main>
+    <!-- =====================================================
+         LAPTOP MONITOR
+    ====================================================== -->
 
-        <!-- LOGIN -->
+    <div
+        id="monitorScreen"
+        class="screen hidden"
+    >
 
-        <section id="loginScreen" class="screen">
+        <div class="topBar">
 
-            <div class="card">
-
-                <h1>Web CCTV</h1>
-
-                <p class="subtitle">
-                    Enter the same password on both devices.
-                </p>
-
-                <input
-                    id="password"
-                    type="password"
-                    placeholder="CCTV password"
-                    autocomplete="off"
-                >
-
-                <div class="roleButtons">
-
-                    <button
-                        id="cameraButton"
-                        class="role"
-                    >
-                        <span class="roleIcon">📱</span>
-                        <span>Camera</span>
-                        <small>Use this device as camera</small>
-                    </button>
-
-
-                    <button
-                        id="monitorButton"
-                        class="role"
-                    >
-                        <span class="roleIcon">🖥️</span>
-                        <span>Monitor</span>
-                        <small>Watch the camera</small>
-                    </button>
-
-                </div>
-
-                <div id="error" class="error"></div>
-
+            <div>
+                💻 CCTV MONITOR
             </div>
 
-        </section>
-
-
-        <!-- PHONE -->
-
-        <section
-            id="cameraScreen"
-            class="screen hidden"
-        >
-
-            <div class="cameraContainer">
-
-                <video
-                    id="localVideo"
-                    autoplay
-                    playsinline
-                    muted
-                ></video>
-
-
-                <div class="videoOverlay">
-
-                    <div class="live">
-                        <span></span>
-                        LIVE
-                    </div>
-
-                    <div id="cameraClock">
-                        00:00:00
-                    </div>
-
-                </div>
-
+            <div
+                id="monitorClock"
+                class="clock"
+            >
+                00:00:00
             </div>
 
+        </div>
 
-            <div class="controls">
 
-                <button id="flipCamera">
-                    🔄 Switch Camera
-                </button>
+        <div class="monitorContainer">
 
-                <button
-                    id="cameraStop"
-                    class="danger"
-                >
-                    ✖ Disconnect
-                </button>
+            <video
+                id="remoteVideo"
+                autoplay
+                playsinline
+            ></video>
+
+
+            <div
+                id="waitingMessage"
+                class="waiting"
+            >
+
+                <div class="waitingIcon">
+                    📹
+                </div>
+
+                <div>
+                    Waiting for camera...
+                </div>
 
             </div>
 
 
             <div
-                id="cameraConnection"
-                class="connectionText"
+                id="monitorLive"
+                class="live hidden"
             >
-                Waiting for monitor...
+                ● LIVE
             </div>
 
-        </section>
+        </div>
 
 
-        <!-- LAPTOP -->
+        <div class="monitorControls">
 
-        <section
-            id="monitorScreen"
-            class="screen hidden"
-        >
-
-            <div class="monitorContainer">
-
-                <video
-                    id="remoteVideo"
-                    autoplay
-                    playsinline
-                ></video>
+            <button
+                id="attentionButton"
+                class="attentionButton"
+            >
+                ⚠️ ATTENTION
+            </button>
 
 
-                <div
-                    id="waitingMessage"
-                    class="waiting"
-                >
-
-                    <div class="spinner"></div>
-
-                    <h2>
-                        Waiting for camera...
-                    </h2>
-
-                    <p>
-                        Open this website on the phone,
-                        select Camera, and use the same password.
-                    </p>
-
-                </div>
+            <button
+                id="fullscreen"
+                class="controlButton"
+            >
+                ⛶ Fullscreen
+            </button>
 
 
-                <div class="videoOverlay">
+            <button
+                id="monitorStop"
+                class="controlButton stopButton"
+            >
+                ❌ Disconnect
+            </button>
 
-                    <div
-                        id="monitorLive"
-                        class="live hidden"
-                    >
-                        <span></span>
-                        LIVE
-                    </div>
+        </div>
 
-                    <div id="monitorClock">
-                        00:00:00
-                    </div>
-
-                </div>
-
-            </div>
+    </div>
 
 
-            <div class="controls">
+    <!-- =====================================================
+         PEERJS
+    ====================================================== -->
 
-                <button id="fullscreen">
-                    ⛶ Fullscreen
-                </button>
-
-
-                <button
-                    id="attentionButton"
-                    class="attentionButton"
-                >
-                    ⚠️ ATTENTION
-                </button>
+    <script
+        src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"
+    ></script>
 
 
-                <button
-                    id="monitorStop"
-                    class="danger"
-                >
-                    ✖ Disconnect
-                </button>
+    <!-- IMPORTANT:
+         script.js must be in the SAME folder as index.html
+    -->
 
-            </div>
-
-        </section>
-
-    </main>
-
-</div>
-
-
-<script src="script.js"></script>
+    <script
+        src="./script.js?v=3"
+    ></script>
 
 </body>
+
 </html>
