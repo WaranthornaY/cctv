@@ -48,9 +48,6 @@ const monitorLive =
 // PASSWORD -> ROOM ID
 // ============================================
 
-// We don't put the actual password into the PeerJS ID.
-// Instead, we create a repeatable hash from it.
-
 function hashPassword(text) {
 
     let hash = 2166136261;
@@ -112,7 +109,8 @@ function setStatus(text, online = false) {
 
 cameraButton.addEventListener("click", async () => {
 
-    const password = passwordInput.value.trim();
+    const password =
+        passwordInput.value.trim();
 
     if (!password) {
 
@@ -123,7 +121,9 @@ cameraButton.addEventListener("click", async () => {
 
     if (password.length < 3) {
 
-        showError("Password must be at least 3 characters.");
+        showError(
+            "Password must be at least 3 characters."
+        );
 
         return;
     }
@@ -135,6 +135,7 @@ cameraButton.addEventListener("click", async () => {
     showError("");
 
     loginScreen.classList.add("hidden");
+
     cameraScreen.classList.remove("hidden");
 
     setStatus("STARTING CAMERA");
@@ -150,7 +151,8 @@ cameraButton.addEventListener("click", async () => {
 
 monitorButton.addEventListener("click", async () => {
 
-    const password = passwordInput.value.trim();
+    const password =
+        passwordInput.value.trim();
 
     if (!password) {
 
@@ -161,7 +163,9 @@ monitorButton.addEventListener("click", async () => {
 
     if (password.length < 3) {
 
-        showError("Password must be at least 3 characters.");
+        showError(
+            "Password must be at least 3 characters."
+        );
 
         return;
     }
@@ -173,6 +177,7 @@ monitorButton.addEventListener("click", async () => {
     showError("");
 
     loginScreen.classList.add("hidden");
+
     monitorScreen.classList.remove("hidden");
 
     setStatus("CONNECTING");
@@ -190,29 +195,37 @@ async function startCamera() {
 
     try {
 
-        localStream = await navigator.mediaDevices.getUserMedia({
+        localStream =
+            await navigator.mediaDevices.getUserMedia({
 
-            video: {
-                facingMode: usingFrontCamera
-                    ? "user"
-                    : "environment",
+                video: {
+                    facingMode: {
+                        ideal:
+                            usingFrontCamera
+                                ? "user"
+                                : "environment"
+                    },
 
-                width: {
-                    ideal: 1280
+                    width: {
+                        ideal: 1280
+                    },
+
+                    height: {
+                        ideal: 720
+                    }
                 },
 
-                height: {
-                    ideal: 720
-                }
-            },
+                audio: true
 
-            audio: true
+            });
 
-        });
+        localVideo.srcObject =
+            localStream;
 
-        localVideo.srcObject = localStream;
-
-        setStatus("WAITING", true);
+        setStatus(
+            "WAITING",
+            true
+        );
 
         cameraConnection.textContent =
             "Waiting for monitor...";
@@ -221,7 +234,10 @@ async function startCamera() {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Camera error:",
+            error
+        );
 
         setStatus("CAMERA ERROR");
 
@@ -247,43 +263,64 @@ function createCameraPeer() {
     const cameraPeerId =
         roomId + "_camera";
 
-    peer = new Peer(cameraPeerId, {
-
-        debug: 1
-
-    });
+    peer =
+        new Peer(
+            cameraPeerId,
+            {
+                debug: 1
+            }
+        );
 
 
     peer.on("open", id => {
 
-        console.log("Camera Peer ID:", id);
+        console.log(
+            "Camera Peer ID:",
+            id
+        );
 
-        setStatus("WAITING", true);
+        setStatus(
+            "WAITING",
+            true
+        );
 
     });
 
 
     peer.on("call", call => {
 
-        console.log("Monitor connected!");
+        console.log(
+            "Monitor connected!"
+        );
 
         currentCall = call;
 
-        call.answer(localStream);
+        call.answer(
+            localStream
+        );
 
         cameraConnection.textContent =
             "Monitor connected";
 
-        setStatus("LIVE", true);
+        setStatus(
+            "LIVE",
+            true
+        );
 
     });
 
 
     peer.on("error", error => {
 
-        console.error(error);
+        console.error(
+            "Peer error:",
+            error
+        );
 
-        if (error.type === "unavailable-id") {
+        if (
+            error.type ===
+            "unavailable-id"
+        ) {
 
             cameraConnection.textContent =
                 "Camera already connected.";
@@ -304,7 +341,9 @@ function createCameraPeer() {
 
     peer.on("disconnected", () => {
 
-        setStatus("DISCONNECTED");
+        setStatus(
+            "DISCONNECTED"
+        );
 
     });
 
@@ -318,22 +357,32 @@ function createCameraPeer() {
 function startMonitor() {
 
     const monitorPeerId =
-        roomId + "_monitor_" +
-        Math.random().toString(36).substring(2, 8);
+        roomId +
+        "_monitor_" +
+        Math.random()
+            .toString(36)
+            .substring(2, 8);
 
 
-    peer = new Peer(monitorPeerId, {
-
-        debug: 1
-
-    });
+    peer =
+        new Peer(
+            monitorPeerId,
+            {
+                debug: 1
+            }
+        );
 
 
     peer.on("open", () => {
 
-        console.log("Monitor ready");
+        console.log(
+            "Monitor ready"
+        );
 
-        setStatus("SEARCHING", true);
+        setStatus(
+            "SEARCHING",
+            true
+        );
 
         connectToCamera();
 
@@ -342,16 +391,23 @@ function startMonitor() {
 
     peer.on("error", error => {
 
-        console.error(error);
+        console.error(
+            "Monitor error:",
+            error
+        );
 
-        setStatus("ERROR");
+        setStatus(
+            "ERROR"
+        );
 
     });
 
 
     peer.on("disconnected", () => {
 
-        setStatus("DISCONNECTED");
+        setStatus(
+            "DISCONNECTED"
+        );
 
     });
 
@@ -373,11 +429,6 @@ function connectToCamera() {
         cameraPeerId
     );
 
-
-    // We don't have a local camera stream.
-    // PeerJS still needs a MediaStream for the call.
-    //
-    // We create an empty audio/video stream.
 
     const emptyStream =
         createEmptyStream();
@@ -406,37 +457,59 @@ function connectToCamera() {
 
     call.on("stream", stream => {
 
-        console.log("Received CCTV stream!");
+        console.log(
+            "Received CCTV stream!"
+        );
 
-        remoteVideo.srcObject = stream;
+        remoteVideo.srcObject =
+            stream;
 
-        waitingMessage.classList.add("hidden");
+        waitingMessage
+            .classList
+            .add("hidden");
 
-        monitorLive.classList.remove("hidden");
+        monitorLive
+            .classList
+            .remove("hidden");
 
-        setStatus("LIVE", true);
+        setStatus(
+            "LIVE",
+            true
+        );
 
     });
 
 
     call.on("close", () => {
 
-        remoteVideo.srcObject = null;
+        remoteVideo.srcObject =
+            null;
 
-        waitingMessage.classList.remove("hidden");
+        waitingMessage
+            .classList
+            .remove("hidden");
 
-        monitorLive.classList.add("hidden");
+        monitorLive
+            .classList
+            .add("hidden");
 
-        setStatus("CAMERA OFFLINE");
+        setStatus(
+            "CAMERA OFFLINE"
+        );
 
     });
 
 
     call.on("error", error => {
 
-        console.error(error);
+        console.error(
+            "Call error:",
+            error
+        );
 
-        setStatus("CONNECTION ERROR");
+        setStatus(
+            "CONNECTION ERROR"
+        );
 
     });
 
@@ -444,13 +517,15 @@ function connectToCamera() {
 
 
 // ============================================
-// EMPTY MEDIA STREAM
+// EMPTY STREAM FOR MONITOR
 // ============================================
 
 function createEmptyStream() {
 
     const canvas =
-        document.createElement("canvas");
+        document.createElement(
+            "canvas"
+        );
 
     canvas.width = 1;
     canvas.height = 1;
@@ -460,39 +535,17 @@ function createEmptyStream() {
         canvas.captureStream(1);
 
 
-    const audioContext =
-        new AudioContext();
-
-
-    const oscillator =
-        audioContext.createOscillator();
-
-
-    const destination =
-        audioContext.createMediaStreamDestination();
-
-
-    oscillator.connect(destination);
-
-    oscillator.start();
-
-
     const stream =
         new MediaStream();
 
 
-    videoStream.getVideoTracks().forEach(track => {
+    videoStream
+        .getVideoTracks()
+        .forEach(track => {
 
-        stream.addTrack(track);
+            stream.addTrack(track);
 
-    });
-
-
-    destination.stream.getAudioTracks().forEach(track => {
-
-        stream.addTrack(track);
-
-    });
+        });
 
 
     return stream;
@@ -501,123 +554,222 @@ function createEmptyStream() {
 
 
 // ============================================
-// FLIP CAMERA
+// SWITCH CAMERA
 // ============================================
 
 document
     .getElementById("flipCamera")
-    .addEventListener("click", async () => {
+    .addEventListener(
+        "click",
+        async () => {
 
-        if (!localStream) return;
+            if (!localStream) {
 
-
-        usingFrontCamera =
-            !usingFrontCamera;
-
-
-        const oldStream =
-            localStream;
+                return;
+            }
 
 
-        try {
+            // Switch the desired camera
+            usingFrontCamera =
+                !usingFrontCamera;
 
-            const newStream =
-                await navigator.mediaDevices.getUserMedia({
 
-                    video: {
-                        facingMode:
-                            usingFrontCamera
-                                ? "user"
-                                : "environment",
+            // Save the old stream
+            const oldStream =
+                localStream;
 
-                        width: {
-                            ideal: 1280
-                        },
 
-                        height: {
-                            ideal: 720
-                        }
-                    },
+            // IMPORTANT:
+            // Stop the old camera BEFORE
+            // opening the new one.
 
-                    audio: true
+            oldStream
+                .getVideoTracks()
+                .forEach(track => {
+
+                    track.stop();
 
                 });
 
 
-            localStream =
-                newStream;
+            try {
+
+                const newStream =
+                    await navigator.mediaDevices
+                        .getUserMedia({
+
+                            video: {
+
+                                facingMode: {
+                                    exact:
+                                        usingFrontCamera
+                                            ? "user"
+                                            : "environment"
+                                },
+
+                                width: {
+                                    ideal: 1280
+                                },
+
+                                height: {
+                                    ideal: 720
+                                }
+
+                            },
+
+                            audio: true
+
+                        });
 
 
-            localVideo.srcObject =
-                newStream;
+                localStream =
+                    newStream;
 
 
-            // Replace the video/audio tracks
-            // inside the active WebRTC call.
+                localVideo.srcObject =
+                    newStream;
 
-            if (currentCall &&
-                currentCall.peerConnection) {
 
-                const senders =
+                // Update WebRTC connection
+                if (
+                    currentCall &&
                     currentCall.peerConnection
-                        .getSenders();
+                ) {
+
+                    const senders =
+                        currentCall
+                            .peerConnection
+                            .getSenders();
 
 
-                const newVideoTrack =
-                    newStream.getVideoTracks()[0];
+                    const newVideoTrack =
+                        newStream
+                            .getVideoTracks()[0];
 
 
-                const newAudioTrack =
-                    newStream.getAudioTracks()[0];
+                    const newAudioTrack =
+                        newStream
+                            .getAudioTracks()[0];
 
 
-                for (const sender of senders) {
-
-                    if (
-                        sender.track &&
-                        sender.track.kind === "video"
+                    for (
+                        const sender
+                        of senders
                     ) {
 
-                        await sender.replaceTrack(
-                            newVideoTrack
-                        );
+                        if (
+                            sender.track &&
+                            sender.track.kind ===
+                                "video"
+                        ) {
 
-                    }
+                            await sender
+                                .replaceTrack(
+                                    newVideoTrack
+                                );
 
-                    if (
-                        sender.track &&
-                        sender.track.kind === "audio"
-                    ) {
+                        }
 
-                        await sender.replaceTrack(
-                            newAudioTrack
-                        );
+
+                        if (
+                            sender.track &&
+                            sender.track.kind ===
+                                "audio"
+                        ) {
+
+                            await sender
+                                .replaceTrack(
+                                    newAudioTrack
+                                );
+
+                        }
 
                     }
 
                 }
 
-            }
 
-
-            oldStream
-                .getTracks()
-                .forEach(track =>
-                    track.stop()
+                console.log(
+                    "Camera switched successfully."
                 );
 
 
-        } catch (error) {
+            } catch (error) {
 
-            console.error(error);
+                console.error(
+                    "Camera switch failed:",
+                    error
+                );
 
-            alert(
-                "Could not switch camera."
-            );
+
+                // Restore previous direction
+                usingFrontCamera =
+                    !usingFrontCamera;
+
+
+                try {
+
+                    const restoredStream =
+                        await navigator.mediaDevices
+                            .getUserMedia({
+
+                                video: {
+
+                                    facingMode: {
+                                        ideal:
+                                            usingFrontCamera
+                                                ? "user"
+                                                : "environment"
+                                    },
+
+                                    width: {
+                                        ideal: 1280
+                                    },
+
+                                    height: {
+                                        ideal: 720
+                                    }
+
+                                },
+
+                                audio: true
+
+                            });
+
+
+                    localStream =
+                        restoredStream;
+
+
+                    localVideo.srcObject =
+                        restoredStream;
+
+
+                    console.log(
+                        "Previous camera restored."
+                    );
+
+
+                } catch (
+                    restoreError
+                ) {
+
+                    console.error(
+                        "Could not restore camera:",
+                        restoreError
+                    );
+
+
+                    alert(
+                        "Could not switch camera."
+                    );
+
+                }
+
+            }
 
         }
-
-    });
+    );
 
 
 // ============================================
@@ -626,27 +778,32 @@ document
 
 document
     .getElementById("fullscreen")
-    .addEventListener("click", () => {
+    .addEventListener(
+        "click",
+        () => {
 
-        const container =
-            document.querySelector(
-                ".monitorContainer"
-            );
+            const container =
+                document.querySelector(
+                    ".monitorContainer"
+                );
 
 
-        if (container.requestFullscreen) {
+            if (
+                container.requestFullscreen
+            ) {
 
-            container.requestFullscreen();
+                container.requestFullscreen();
 
-        } else if (
-            container.webkitRequestFullscreen
-        ) {
+            } else if (
+                container.webkitRequestFullscreen
+            ) {
 
-            container.webkitRequestFullscreen();
+                container.webkitRequestFullscreen();
+
+            }
 
         }
-
-    });
+    );
 
 
 // ============================================
@@ -655,11 +812,14 @@ document
 
 document
     .getElementById("cameraStop")
-    .addEventListener("click", () => {
+    .addEventListener(
+        "click",
+        () => {
 
-        disconnectEverything();
+            disconnectEverything();
 
-    });
+        }
+    );
 
 
 // ============================================
@@ -668,11 +828,14 @@ document
 
 document
     .getElementById("monitorStop")
-    .addEventListener("click", () => {
+    .addEventListener(
+        "click",
+        () => {
 
-        disconnectEverything();
+            disconnectEverything();
 
-    });
+        }
+    );
 
 
 // ============================================
@@ -684,8 +847,10 @@ function disconnectEverything() {
     if (currentCall) {
 
         try {
+
             currentCall.close();
-        } catch (e) {}
+
+        } catch (error) {}
 
         currentCall = null;
 
@@ -696,9 +861,11 @@ function disconnectEverything() {
 
         localStream
             .getTracks()
-            .forEach(track =>
-                track.stop()
-            );
+            .forEach(track => {
+
+                track.stop();
+
+            });
 
         localStream = null;
 
@@ -708,25 +875,56 @@ function disconnectEverything() {
     if (peer) {
 
         try {
+
             peer.destroy();
-        } catch (e) {}
+
+        } catch (error) {}
 
         peer = null;
 
     }
 
 
-    localVideo.srcObject = null;
-    remoteVideo.srcObject = null;
+    localVideo.srcObject =
+        null;
+
+    remoteVideo.srcObject =
+        null;
 
 
-    cameraScreen.classList.add("hidden");
-    monitorScreen.classList.add("hidden");
+    cameraScreen
+        .classList
+        .add("hidden");
 
-    loginScreen.classList.remove("hidden");
+    monitorScreen
+        .classList
+        .add("hidden");
+
+    loginScreen
+        .classList
+        .remove("hidden");
 
 
-    setStatus("OFFLINE");
+    passwordInput.value =
+        "";
+
+    cameraConnection.textContent =
+        "Waiting for monitor...";
+
+
+    waitingMessage
+        .classList
+        .remove("hidden");
+
+
+    monitorLive
+        .classList
+        .add("hidden");
+
+
+    setStatus(
+        "OFFLINE"
+    );
 
 }
 
@@ -752,12 +950,14 @@ function updateClock() {
 
     document.getElementById(
         "cameraClock"
-    ).textContent = time;
+    ).textContent =
+        time;
 
 
     document.getElementById(
         "monitorClock"
-    ).textContent = time;
+    ).textContent =
+        time;
 
 }
 
@@ -767,4 +967,35 @@ setInterval(
     1000
 );
 
+
 updateClock();
+
+
+// ============================================
+// CLEANUP WHEN PAGE CLOSES
+// ============================================
+
+window.addEventListener(
+    "beforeunload",
+    () => {
+
+        if (localStream) {
+
+            localStream
+                .getTracks()
+                .forEach(track =>
+                    track.stop()
+                );
+
+        }
+
+        if (peer) {
+
+            try {
+                peer.destroy();
+            } catch (error) {}
+
+        }
+
+    }
+);
