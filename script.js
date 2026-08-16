@@ -1,8 +1,13 @@
 // ============================================================
 // WEB CCTV
+//
 // PHONE = CAMERA
 // LAPTOP = MONITOR
+//
+// VIDEO ONLY
+// NO MICROPHONE
 // ============================================================
+
 
 let peer = null;
 
@@ -28,55 +33,85 @@ let reconnectTimer = null;
 // ============================================================
 
 const loginScreen =
-    document.getElementById("loginScreen");
+    document.getElementById(
+        "loginScreen"
+    );
 
 const cameraScreen =
-    document.getElementById("cameraScreen");
+    document.getElementById(
+        "cameraScreen"
+    );
 
 const monitorScreen =
-    document.getElementById("monitorScreen");
+    document.getElementById(
+        "monitorScreen"
+    );
 
 const passwordInput =
-    document.getElementById("password");
+    document.getElementById(
+        "password"
+    );
 
 const cameraButton =
-    document.getElementById("cameraButton");
+    document.getElementById(
+        "cameraButton"
+    );
 
 const monitorButton =
-    document.getElementById("monitorButton");
+    document.getElementById(
+        "monitorButton"
+    );
 
 const errorBox =
-    document.getElementById("error");
+    document.getElementById(
+        "error"
+    );
 
 const localVideo =
-    document.getElementById("localVideo");
+    document.getElementById(
+        "localVideo"
+    );
 
 const remoteVideo =
-    document.getElementById("remoteVideo");
+    document.getElementById(
+        "remoteVideo"
+    );
 
 const waitingMessage =
-    document.getElementById("waitingMessage");
+    document.getElementById(
+        "waitingMessage"
+    );
 
 const statusText =
-    document.getElementById("status");
+    document.getElementById(
+        "status"
+    );
 
 const cameraConnection =
-    document.getElementById("cameraConnection");
+    document.getElementById(
+        "cameraConnection"
+    );
 
 const monitorLive =
-    document.getElementById("monitorLive");
+    document.getElementById(
+        "monitorLive"
+    );
 
 const attentionButton =
-    document.getElementById("attentionButton");
+    document.getElementById(
+        "attentionButton"
+    );
 
 
 // ============================================================
-// PASSWORD HASH
+// PASSWORD
 // ============================================================
 
 function hashPassword(text) {
 
-    let hash = 2166136261;
+    let hash =
+        2166136261;
+
 
     for (
         let i = 0;
@@ -84,7 +119,9 @@ function hashPassword(text) {
         i++
     ) {
 
-        hash ^= text.charCodeAt(i);
+        hash ^=
+            text.charCodeAt(i);
+
 
         hash +=
             (hash << 1) +
@@ -95,10 +132,10 @@ function hashPassword(text) {
 
     }
 
-    return (
-        Math.abs(hash >>> 0)
-            .toString(36)
-    );
+
+    return Math.abs(
+        hash >>> 0
+    ).toString(36);
 
 }
 
@@ -122,13 +159,17 @@ function setStatus(
     online = false
 ) {
 
-    statusText.textContent =
-        text;
+    if (statusText) {
 
-    statusText.classList.toggle(
-        "online",
-        online
-    );
+        statusText.textContent =
+            text;
+
+        statusText.classList.toggle(
+            "online",
+            online
+        );
+
+    }
 
 }
 
@@ -171,6 +212,7 @@ cameraButton.addEventListener(
         currentRole =
             "camera";
 
+
         roomId =
             getRoomId(password);
 
@@ -184,6 +226,7 @@ cameraButton.addEventListener(
         loginScreen.classList.add(
             "hidden"
         );
+
 
         cameraScreen.classList.remove(
             "hidden"
@@ -227,6 +270,7 @@ monitorButton.addEventListener(
         currentRole =
             "monitor";
 
+
         roomId =
             getRoomId(password);
 
@@ -240,6 +284,7 @@ monitorButton.addEventListener(
         loginScreen.classList.add(
             "hidden"
         );
+
 
         monitorScreen.classList.remove(
             "hidden"
@@ -258,12 +303,20 @@ monitorButton.addEventListener(
 
 
 // ============================================================
-// START CAMERA
+// CAMERA
 // ============================================================
 
 async function startCamera() {
 
     try {
+
+        /*
+         IMPORTANT:
+
+         audio:false
+
+         There is NO microphone.
+        */
 
         localStream =
             await navigator
@@ -273,23 +326,31 @@ async function startCamera() {
                     video: {
 
                         facingMode: {
+
                             ideal:
                                 usingFrontCamera
                                     ? "user"
                                     : "environment"
+
                         },
 
                         width: {
-                            ideal: 1280
+
+                            ideal:
+                                1280
+
                         },
 
                         height: {
-                            ideal: 720
+
+                            ideal:
+                                720
+
                         }
 
                     },
 
-                    audio: true
+                    audio: false
 
                 });
 
@@ -297,6 +358,13 @@ async function startCamera() {
         localVideo.srcObject =
             localStream;
 
+
+        /*
+         Prepare audio only for the
+         local ATTENTION beep.
+
+         It does NOT capture microphone.
+        */
 
         await preparePhoneAudio();
 
@@ -326,13 +394,14 @@ async function startCamera() {
 
 
 // ============================================================
-// CREATE PHONE PEER
+// PHONE PEER
 // ============================================================
 
 function createCameraPeer() {
 
     const cameraPeerId =
-        roomId + "_camera";
+        roomId +
+        "_camera";
 
 
     console.log(
@@ -366,7 +435,7 @@ function createCameraPeer() {
 
 
     // --------------------------------------------------------
-    // PHONE PEER READY
+    // OPEN
     // --------------------------------------------------------
 
     peer.on(
@@ -393,7 +462,7 @@ function createCameraPeer() {
 
 
     // --------------------------------------------------------
-    // LAPTOP CONNECTS
+    // LAPTOP DATA CONNECTION
     // --------------------------------------------------------
 
     peer.on(
@@ -429,17 +498,15 @@ function createCameraPeer() {
 
 
                     connection.send({
+
                         type:
                             "PHONE_READY"
+
                     });
 
 
                     /*
-                     IMPORTANT:
-
                      PHONE initiates the video call.
-
-                     Laptop never calls peer.call().
                     */
 
                     setTimeout(
@@ -491,9 +558,13 @@ function createCameraPeer() {
                     if (currentCall) {
 
                         try {
+
                             currentCall.close();
+
                         }
+
                         catch (e) {}
+
 
                         currentCall =
                             null;
@@ -518,7 +589,7 @@ function createCameraPeer() {
 
 
     // --------------------------------------------------------
-    // ERROR
+    // PEER ERROR
     // --------------------------------------------------------
 
     peer.on(
@@ -563,7 +634,7 @@ function callLaptop(
     if (!peer) {
 
         console.error(
-            "Phone peer doesn't exist."
+            "PHONE PEER DOES NOT EXIST"
         );
 
         return;
@@ -574,7 +645,7 @@ function callLaptop(
     if (!localStream) {
 
         console.error(
-            "Camera stream doesn't exist."
+            "CAMERA STREAM DOES NOT EXIST"
         );
 
         return;
@@ -598,7 +669,7 @@ function callLaptop(
     if (!currentCall) {
 
         console.error(
-            "Could not create video call."
+            "VIDEO CALL FAILED"
         );
 
         return;
@@ -638,7 +709,7 @@ function callLaptop(
 
 
 // ============================================================
-// START MONITOR
+// MONITOR
 // ============================================================
 
 function startMonitor() {
@@ -682,7 +753,7 @@ function startMonitor() {
 
 
     // --------------------------------------------------------
-    // LAPTOP READY
+    // OPEN
     // --------------------------------------------------------
 
     peer.on(
@@ -708,7 +779,7 @@ function startMonitor() {
 
 
     // --------------------------------------------------------
-    // RECEIVE PHONE VIDEO
+    // RECEIVE VIDEO
     // --------------------------------------------------------
 
     peer.on(
@@ -716,20 +787,7 @@ function startMonitor() {
         call => {
 
             console.log(
-                "================================"
-            );
-
-            console.log(
                 "INCOMING CAMERA VIDEO"
-            );
-
-            console.log(
-                "FROM:",
-                call.peer
-            );
-
-            console.log(
-                "================================"
             );
 
 
@@ -740,9 +798,9 @@ function startMonitor() {
             /*
              IMPORTANT:
 
-             Laptop does NOT provide a stream.
+             NO STREAM IS PASSED HERE.
 
-             answer() with no stream.
+             Laptop has no camera and no microphone.
             */
 
             call.answer();
@@ -823,7 +881,7 @@ function startMonitor() {
 
 
     // --------------------------------------------------------
-    // PEER ERROR
+    // ERROR
     // --------------------------------------------------------
 
     peer.on(
@@ -850,7 +908,7 @@ function startMonitor() {
 
 
 // ============================================================
-// CONNECT LAPTOP TO PHONE
+// CONNECT TO CAMERA
 // ============================================================
 
 function connectToCamera() {
@@ -884,17 +942,14 @@ function connectToCamera() {
         controlConnection.open
     ) {
 
-        console.log(
-            "Already connected."
-        );
-
         return;
 
     }
 
 
     const cameraPeerId =
-        roomId + "_camera";
+        roomId +
+        "_camera";
 
 
     console.log(
@@ -948,15 +1003,7 @@ function connectToCamera() {
         () => {
 
             console.log(
-                "================================"
-            );
-
-            console.log(
                 "CAMERA CONTROL CONNECTED"
-            );
-
-            console.log(
-                "================================"
             );
 
 
@@ -967,8 +1014,10 @@ function connectToCamera() {
 
 
             connection.send({
+
                 type:
                     "LAPTOP_READY"
+
             });
 
         }
@@ -1084,89 +1133,90 @@ function scheduleReconnect() {
 
 
 // ============================================================
-// ATTENTION
+// ATTENTION BUTTON
 // ============================================================
 
 attentionButton.addEventListener(
     "click",
-    () => {
-
-        if (
-            !controlConnection ||
-            !controlConnection.open
-        ) {
-
-            attentionButton.textContent =
-                "❌ NOT CONNECTED";
+    sendAttention
+);
 
 
-            setTimeout(
-                () => {
+function sendAttention() {
 
-                    attentionButton.textContent =
-                        "⚠️ ATTENTION";
-
-                },
-                1000
-            );
+    console.log(
+        "ATTENTION BUTTON"
+    );
 
 
-            return;
-
-        }
-
-
-        console.log(
-            "SENDING ATTENTION"
-        );
-
-
-        controlConnection.send({
-
-            type:
-                "ATTENTION",
-
-            timestamp:
-                Date.now()
-
-        });
-
-
-        attentionButton.classList.add(
-            "active"
-        );
-
+    if (
+        !controlConnection ||
+        !controlConnection.open
+    ) {
 
         attentionButton.textContent =
-            "⚠️ SENT";
+            "❌ NOT CONNECTED";
 
 
         setTimeout(
             () => {
 
-                attentionButton.classList.remove(
-                    "active"
-                );
-
-
                 attentionButton.textContent =
                     "⚠️ ATTENTION";
 
             },
-            700
+            1000
         );
 
+
+        return;
+
     }
-);
+
+
+    controlConnection.send({
+
+        type:
+            "ATTENTION",
+
+        timestamp:
+            Date.now()
+
+    });
+
+
+    attentionButton.classList.add(
+        "active"
+    );
+
+
+    attentionButton.textContent =
+        "⚠️ SENT";
+
+
+    setTimeout(
+        () => {
+
+            attentionButton.classList.remove(
+                "active"
+            );
+
+
+            attentionButton.textContent =
+                "⚠️ ATTENTION";
+
+        },
+        700
+    );
+
+}
 
 
 // ============================================================
 // PHONE COMMANDS
 // ============================================================
 
-function handleCommand(
-    data
-) {
+function handleCommand(data) {
 
     if (!data) {
 
@@ -1188,7 +1238,7 @@ function handleCommand(
 
 
 // ============================================================
-// AUDIO
+// PHONE BEEP AUDIO
 // ============================================================
 
 async function preparePhoneAudio() {
@@ -1210,7 +1260,6 @@ async function preparePhoneAudio() {
         phoneAudioContext =
             new AudioContext();
 
-
     }
 
     catch (error) {
@@ -1225,14 +1274,10 @@ async function preparePhoneAudio() {
 }
 
 
-// ============================================================
-// ATTENTION ALERT
-// ============================================================
-
 async function attentionAlert() {
 
     console.log(
-        "⚠️ ATTENTION RECEIVED"
+        "ATTENTION RECEIVED"
     );
 
 
@@ -1242,10 +1287,6 @@ async function attentionAlert() {
 
 }
 
-
-// ============================================================
-// BEEP
-// ============================================================
 
 async function playAttentionSound() {
 
@@ -1275,11 +1316,22 @@ async function playAttentionSound() {
         }
 
 
-        beep(880, 0);
+        beep(
+            880,
+            0
+        );
 
-        beep(880, 180);
 
-        beep(1100, 360);
+        beep(
+            880,
+            180
+        );
+
+
+        beep(
+            1100,
+            360
+        );
 
     }
 
@@ -1348,7 +1400,10 @@ function beep(
             );
 
 
-            oscillator.connect(gain);
+            oscillator.connect(
+                gain
+            );
+
 
             gain.connect(
                 phoneAudioContext.destination
@@ -1371,16 +1426,12 @@ function beep(
 
 
 // ============================================================
-// FLASHLIGHT
+// PHONE FLASHLIGHT
 // ============================================================
 
 async function flashPhone() {
 
     if (!localStream) {
-
-        console.log(
-            "No camera stream."
-        );
 
         return;
 
@@ -1424,7 +1475,7 @@ async function flashPhone() {
     if (!capabilities.torch) {
 
         console.log(
-            "This phone/browser does not support torch control."
+            "Torch unavailable."
         );
 
         return;
@@ -1437,31 +1488,33 @@ async function flashPhone() {
         await track.applyConstraints({
 
             advanced: [
+
                 {
                     torch: true
                 }
+
             ]
 
         });
 
 
-        await sleep(250);
+        await sleep(
+            250
+        );
 
 
         await track.applyConstraints({
 
             advanced: [
+
                 {
                     torch: false
                 }
+
             ]
 
         });
 
-
-        console.log(
-            "FLASH COMPLETE"
-        );
 
     }
 
@@ -1484,11 +1537,14 @@ async function flashPhone() {
 function sleep(ms) {
 
     return new Promise(
-        resolve =>
+        resolve => {
+
             setTimeout(
                 resolve,
                 ms
-            )
+            );
+
+        }
     );
 
 }
@@ -1499,131 +1555,152 @@ function sleep(ms) {
 // ============================================================
 
 document
-    .getElementById("flipCamera")
+    .getElementById(
+        "flipCamera"
+    )
     .addEventListener(
         "click",
-        async () => {
-
-            if (!localStream) {
-
-                return;
-
-            }
+        flipCamera
+    );
 
 
-            const oldVideoTrack =
-                localStream
-                    .getVideoTracks()[0];
+async function flipCamera() {
+
+    if (!localStream) {
+
+        return;
+
+    }
 
 
-            if (oldVideoTrack) {
-
-                oldVideoTrack.stop();
-
-            }
+    usingFrontCamera =
+        !usingFrontCamera;
 
 
-            usingFrontCamera =
-                !usingFrontCamera;
+    try {
 
+        const newStream =
+            await navigator
+                .mediaDevices
+                .getUserMedia({
 
-            try {
+                    video: {
 
-                const newStream =
-                    await navigator
-                        .mediaDevices
-                        .getUserMedia({
+                        facingMode: {
 
-                            video: {
+                            ideal:
+                                usingFrontCamera
+                                    ? "user"
+                                    : "environment"
 
-                                facingMode: {
-                                    ideal:
-                                        usingFrontCamera
-                                            ? "user"
-                                            : "environment"
-                                },
+                        },
 
-                                width: {
-                                    ideal: 1280
-                                },
+                        width: {
 
-                                height: {
-                                    ideal: 720
-                                }
+                            ideal:
+                                1280
 
-                            },
+                        },
 
-                            audio: true
+                        height: {
 
-                        });
-
-
-                localStream =
-                    newStream;
-
-
-                localVideo.srcObject =
-                    newStream;
-
-
-                /*
-                 Replace the camera track
-                 inside the existing call.
-                */
-
-                if (
-                    currentCall &&
-                    currentCall.peerConnection
-                ) {
-
-                    const senders =
-                        currentCall
-                            .peerConnection
-                            .getSenders();
-
-
-                    const videoTrack =
-                        newStream
-                            .getVideoTracks()[0];
-
-
-                    for (
-                        const sender of senders
-                    ) {
-
-                        if (
-                            sender.track &&
-                            sender.track.kind ===
-                            "video"
-                        ) {
-
-                            await sender.replaceTrack(
-                                videoTrack
-                            );
+                            ideal:
+                                720
 
                         }
 
-                    }
+                    },
+
+                    /*
+                     NO MICROPHONE
+                    */
+
+                    audio: false
+
+                });
+
+
+        const newVideoTrack =
+            newStream
+                .getVideoTracks()[0];
+
+
+        const oldVideoTrack =
+            localStream
+                .getVideoTracks()[0];
+
+
+        /*
+         Replace video track in WebRTC.
+        */
+
+        if (
+            currentCall &&
+            currentCall.peerConnection
+        ) {
+
+            const senders =
+                currentCall
+                    .peerConnection
+                    .getSenders();
+
+
+            for (
+                const sender of senders
+            ) {
+
+                if (
+                    sender.track &&
+                    sender.track.kind ===
+                    "video"
+                ) {
+
+                    await sender.replaceTrack(
+                        newVideoTrack
+                    );
 
                 }
 
             }
 
-            catch (error) {
-
-                console.error(
-                    "FLIP CAMERA ERROR:",
-                    error
-                );
+        }
 
 
-                usingFrontCamera =
-                    !usingFrontCamera;
+        if (oldVideoTrack) {
 
-            }
+            oldVideoTrack.stop();
 
         }
-    );
+
+
+        localStream =
+            newStream;
+
+
+        localVideo.srcObject =
+            newStream;
+
+
+        console.log(
+            "CAMERA FLIPPED"
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "FLIP ERROR:",
+            error
+        );
+
+
+        usingFrontCamera =
+            !usingFrontCamera;
+
+    }
+
+}
 
 
 // ============================================================
@@ -1631,12 +1708,14 @@ document
 // ============================================================
 
 document
-    .getElementById("fullscreen")
+    .getElementById(
+        "fullscreen"
+    )
     .addEventListener(
         "click",
         async () => {
 
-            const element =
+            const container =
                 document.querySelector(
                     ".monitorContainer"
                 );
@@ -1648,13 +1727,15 @@ document
                     !document.fullscreenElement
                 ) {
 
-                    await element.requestFullscreen();
+                    await container
+                        .requestFullscreen();
 
                 }
 
                 else {
 
-                    await document.exitFullscreen();
+                    await document
+                        .exitFullscreen();
 
                 }
 
@@ -1674,11 +1755,13 @@ document
 
 
 // ============================================================
-// DISCONNECT
+// DISCONNECT BUTTONS
 // ============================================================
 
 document
-    .getElementById("cameraStop")
+    .getElementById(
+        "cameraStop"
+    )
     .addEventListener(
         "click",
         disconnectEverything
@@ -1686,18 +1769,31 @@ document
 
 
 document
-    .getElementById("monitorStop")
+    .getElementById(
+        "monitorStop"
+    )
     .addEventListener(
         "click",
         disconnectEverything
     );
 
 
+// ============================================================
+// DISCONNECT
+// ============================================================
+
 function disconnectEverything() {
+
+    console.log(
+        "DISCONNECTING..."
+    );
+
 
     currentRole =
         null;
 
+
+    // Stop reconnecting
 
     if (reconnectTimer) {
 
@@ -1711,6 +1807,8 @@ function disconnectEverything() {
     }
 
 
+    // Close video call
+
     if (currentCall) {
 
         try {
@@ -1721,12 +1819,13 @@ function disconnectEverything() {
 
         catch (e) {}
 
-
         currentCall =
             null;
 
     }
 
+
+    // Close control connection
 
     if (controlConnection) {
 
@@ -1738,20 +1837,24 @@ function disconnectEverything() {
 
         catch (e) {}
 
-
         controlConnection =
             null;
 
     }
 
 
+    // Stop camera
+
     if (localStream) {
 
         localStream
             .getTracks()
             .forEach(
-                track =>
-                    track.stop()
+                track => {
+
+                    track.stop();
+
+                }
             );
 
 
@@ -1760,6 +1863,8 @@ function disconnectEverything() {
 
     }
 
+
+    // Destroy PeerJS
 
     if (peer) {
 
@@ -1771,12 +1876,13 @@ function disconnectEverything() {
 
         catch (e) {}
 
-
         peer =
             null;
 
     }
 
+
+    // Clear videos
 
     localVideo.srcObject =
         null;
@@ -1785,6 +1891,8 @@ function disconnectEverything() {
     remoteVideo.srcObject =
         null;
 
+
+    // Reset UI
 
     cameraScreen.classList.add(
         "hidden"
@@ -1811,8 +1919,26 @@ function disconnectEverything() {
     );
 
 
+    attentionButton.classList.remove(
+        "active"
+    );
+
+
+    attentionButton.textContent =
+        "⚠️ ATTENTION";
+
+
+    cameraConnection.textContent =
+        "Starting camera...";
+
+
     setStatus(
         "OFFLINE"
+    );
+
+
+    console.log(
+        "DISCONNECTED"
     );
 
 }

@@ -34,13 +34,15 @@ body {
 
 
 .hidden {
+
     display: none !important;
+
 }
 
 
-/* ==========================================================
-   GENERAL SCREEN
-========================================================== */
+/* =========================================================
+   SCREEN
+========================================================= */
 
 .screen {
 
@@ -51,23 +53,23 @@ body {
 }
 
 
-/* ==========================================================
+/* =========================================================
    LOGIN
-========================================================== */
+========================================================= */
 
 #loginScreen {
 
     display: flex;
 
-    justify-content: center;
-
     align-items: center;
+
+    justify-content: center;
 
     background:
         radial-gradient(
-            circle at center,
-            #202020 0%,
-            #080808 70%
+            circle,
+            #242424,
+            #080808
         );
 
 }
@@ -92,7 +94,7 @@ body {
 
     box-shadow:
         0 20px 60px
-        rgba(0,0,0,0.6);
+        rgba(0,0,0,0.7);
 
 }
 
@@ -123,11 +125,14 @@ body {
 
     margin-bottom: 15px;
 
-    border: 1px solid #444;
+    border:
+
+        1px solid
+        #444;
 
     border-radius: 10px;
 
-    background: #090909;
+    background: #080808;
 
     color: white;
 
@@ -172,7 +177,7 @@ body {
 
 .mainButton:hover {
 
-    filter: brightness(1.15);
+    filter: brightness(1.2);
 
 }
 
@@ -195,9 +200,9 @@ body {
 }
 
 
-/* ==========================================================
+/* =========================================================
    TOP BAR
-========================================================== */
+========================================================= */
 
 .topBar {
 
@@ -205,15 +210,17 @@ body {
 
     display: flex;
 
-    justify-content: space-between;
-
     align-items: center;
+
+    justify-content: space-between;
 
     padding: 0 20px;
 
     background: #111;
 
-    border-bottom: 1px solid #333;
+    border-bottom:
+        1px solid
+        #333;
 
     font-weight: bold;
 
@@ -229,9 +236,9 @@ body {
 }
 
 
-/* ==========================================================
+/* =========================================================
    CAMERA
-========================================================== */
+========================================================= */
 
 .cameraContainer {
 
@@ -246,9 +253,9 @@ body {
 
     display: flex;
 
-    justify-content: center;
-
     align-items: center;
+
+    justify-content: center;
 
     background: black;
 
@@ -277,10 +284,16 @@ body {
     transform:
         translateX(-50%);
 
-    padding: 10px 18px;
+    padding:
+        10px 18px;
 
     background:
-        rgba(0,0,0,0.7);
+        rgba(
+            0,
+            0,
+            0,
+            0.75
+        );
 
     border-radius: 20px;
 
@@ -289,26 +302,9 @@ body {
 }
 
 
-.cameraControls {
-
-    height: 75px;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    gap: 10px;
-
-    background: #111;
-
-}
-
-
-/* ==========================================================
+/* =========================================================
    MONITOR
-========================================================== */
+========================================================= */
 
 .monitorContainer {
 
@@ -325,9 +321,9 @@ body {
 
     display: flex;
 
-    justify-content: center;
-
     align-items: center;
+
+    justify-content: center;
 
 }
 
@@ -361,7 +357,7 @@ body {
 
     text-align: center;
 
-    color: #999;
+    color: #888;
 
     font-size: 20px;
 
@@ -385,27 +381,38 @@ body {
 
     left: 15px;
 
-    padding: 8px 12px;
-
-    border-radius: 8px;
+    padding:
+        8px 12px;
 
     background:
-        rgba(200,0,0,0.8);
+        rgba(
+            190,
+            0,
+            0,
+            0.85
+        );
+
+    border-radius: 8px;
 
     font-weight: bold;
 
 }
 
 
+/* =========================================================
+   CONTROLS
+========================================================= */
+
+.cameraControls,
 .monitorControls {
 
     height: 75px;
 
     display: flex;
 
-    justify-content: center;
-
     align-items: center;
+
+    justify-content: center;
 
     gap: 10px;
 
@@ -414,13 +421,14 @@ body {
 }
 
 
-/* ==========================================================
-   BUTTONS
-========================================================== */
+/* =========================================================
+   NORMAL BUTTON
+========================================================= */
 
 .controlButton {
 
-    padding: 12px 18px;
+    padding:
+        12px 18px;
 
     border: 0;
 
@@ -444,27 +452,34 @@ body {
 }
 
 
+/* =========================================================
+   DISCONNECT
+========================================================= */
+
 .stopButton {
 
-    background: #8b2020;
+    background: #9b2020;
+
+    font-weight: bold;
 
 }
 
 
 .stopButton:hover {
 
-    background: #a52a2a;
+    background: #c62828;
 
 }
 
 
-/* ==========================================================
+/* =========================================================
    ATTENTION
-========================================================== */
+========================================================= */
 
 .attentionButton {
 
-    padding: 13px 22px;
+    padding:
+        13px 22px;
 
     border: 0;
 
@@ -492,16 +507,18 @@ body {
 
 .attentionButton.active {
 
-    transform: scale(0.95);
+    transform:
+        scale(0.94);
 
-    filter: brightness(1.5);
+    filter:
+        brightness(1.5);
 
 }
 
 
-/* ==========================================================
+/* =========================================================
    STATUS
-========================================================== */
+========================================================= */
 
 .status {
 
@@ -525,9 +542,9 @@ body {
 }
 
 
-/* ==========================================================
+/* =========================================================
    MOBILE
-========================================================== */
+========================================================= */
 
 @media (
     max-width: 600px
@@ -540,8 +557,8 @@ body {
     }
 
 
-    .monitorControls,
-    .cameraControls {
+    .cameraControls,
+    .monitorControls {
 
         gap: 5px;
 
@@ -551,9 +568,11 @@ body {
     .controlButton,
     .attentionButton {
 
-        padding: 10px;
+        padding:
+            10px;
 
-        font-size: 13px;
+        font-size:
+            13px;
 
     }
 

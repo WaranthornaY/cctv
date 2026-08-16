@@ -14,7 +14,7 @@
 
     <link
         rel="stylesheet"
-        href="./style.css?v=3"
+        href="./style.css?v=10"
     >
 
 </head>
@@ -22,9 +22,9 @@
 
 <body>
 
-    <!-- =====================================================
+    <!-- =========================
          LOGIN
-    ====================================================== -->
+    ========================== -->
 
     <div
         id="loginScreen"
@@ -39,14 +39,12 @@
                 Enter the same password on both devices.
             </p>
 
-
             <input
                 id="password"
                 type="password"
                 placeholder="CCTV password"
                 autocomplete="off"
             >
-
 
             <button
                 id="cameraButton"
@@ -55,14 +53,12 @@
                 📱 Use as Camera
             </button>
 
-
             <button
                 id="monitorButton"
                 class="mainButton monitorButton"
             >
                 💻 Use as Monitor
             </button>
-
 
             <div
                 id="error"
@@ -74,9 +70,9 @@
     </div>
 
 
-    <!-- =====================================================
+    <!-- =========================
          PHONE CAMERA
-    ====================================================== -->
+    ========================== -->
 
     <div
         id="cameraScreen"
@@ -108,7 +104,6 @@
                 playsinline
             ></video>
 
-
             <div
                 id="cameraConnection"
                 class="connection"
@@ -128,12 +123,11 @@
                 🔄 Flip Camera
             </button>
 
-
             <button
                 id="cameraStop"
                 class="controlButton stopButton"
             >
-                ❌ Disconnect
+                🔌 DISCONNECT
             </button>
 
         </div>
@@ -149,9 +143,9 @@
     </div>
 
 
-    <!-- =====================================================
+    <!-- =========================
          LAPTOP MONITOR
-    ====================================================== -->
+    ========================== -->
 
     <div
         id="monitorScreen"
@@ -181,7 +175,6 @@
                 autoplay
                 playsinline
             ></video>
-
 
             <div
                 id="waitingMessage"
@@ -218,20 +211,18 @@
                 ⚠️ ATTENTION
             </button>
 
-
             <button
                 id="fullscreen"
                 class="controlButton"
             >
-                ⛶ Fullscreen
+                ⛶ FULLSCREEN
             </button>
-
 
             <button
                 id="monitorStop"
                 class="controlButton stopButton"
             >
-                ❌ Disconnect
+                🔌 DISCONNECT
             </button>
 
         </div>
@@ -239,21 +230,19 @@
     </div>
 
 
-    <!-- =====================================================
+    <!-- =========================
          PEERJS
-    ====================================================== -->
+    ========================== -->
 
     <script
         src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"
     ></script>
 
 
-    <!-- IMPORTANT:
-         script.js must be in the SAME folder as index.html
-    -->
+    <!-- YOUR JAVASCRIPT -->
 
     <script
-        src="./script.js?v=3"
+        src="./script.js?v=10"
     ></script>
 
 </body>
