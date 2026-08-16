@@ -14,7 +14,7 @@
 
     <link
         rel="stylesheet"
-        href="./style.css?v=30"
+        href="./style.css?v=100"
     >
 
 </head>
@@ -67,9 +67,8 @@
 </div>
 
 
-
 <!-- =========================================================
-     CAMERA / PHONE
+     PHONE / CAMERA
 ========================================================= -->
 
 <div
@@ -87,9 +86,7 @@
 
     <div class="cameraTop">
 
-        <b>
-            📱 CCTV CAMERA
-        </b>
+        <b>📱 CCTV CAMERA</b>
 
         <span id="cameraClock">
             00:00:00
@@ -106,15 +103,19 @@
     </div>
 
 
-    <div class="cameraButtons">
+    <div class="cameraControls">
 
-        <button id="flipCamera">
-            🔄 FLIP CAMERA
+        <button
+            id="flipCamera"
+            class="controlButton"
+        >
+            🔄 FLIP
         </button>
 
         <button
             id="cameraStop"
-            class="disconnect"
+            class="disconnectButton"
+            onclick="disconnectEverything()"
         >
             🔌 DISCONNECT
         </button>
@@ -132,9 +133,8 @@
 </div>
 
 
-
 <!-- =========================================================
-     MONITOR / LAPTOP
+     LAPTOP / MONITOR
 ========================================================= -->
 
 <div
@@ -151,9 +151,7 @@
 
     <div class="monitorTop">
 
-        <b>
-            💻 CCTV MONITOR
-        </b>
+        <b>💻 CCTV MONITOR</b>
 
         <span id="monitorClock">
             00:00:00
@@ -184,24 +182,28 @@
     </div>
 
 
-    <div class="monitorButtons">
+    <div class="monitorControls">
 
         <button
             id="attentionButton"
-            class="attention"
+            class="attentionButton"
         >
             ⚠️ ATTENTION
         </button>
 
 
-        <button id="fullscreen">
+        <button
+            id="fullscreen"
+            class="controlButton"
+        >
             ⛶ FULLSCREEN
         </button>
 
 
         <button
             id="monitorStop"
-            class="disconnect"
+            class="disconnectButton"
+            onclick="disconnectEverything()"
         >
             🔌 DISCONNECT
         </button>
@@ -209,7 +211,6 @@
     </div>
 
 </div>
-
 
 
 <!-- =========================================================
@@ -222,11 +223,11 @@
 
 
 <!-- =========================================================
-     JAVASCRIPT
+     SCRIPT
 ========================================================= -->
 
 <script
-    src="./script.js?v=30"
+    src="./script.js?v=100"
 ></script>
 
 

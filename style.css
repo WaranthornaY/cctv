@@ -67,9 +67,9 @@ body {
 
     background:
         radial-gradient(
-            circle at center,
-            #222 0%,
-            #080808 70%
+            circle,
+            #252525 0%,
+            #050505 70%
         );
 
 }
@@ -90,7 +90,7 @@ body {
 
     box-shadow:
         0 10px 40px
-        rgba(0,0,0,0.6);
+        rgba(0,0,0,.6);
 
     text-align: center;
 
@@ -110,8 +110,6 @@ body {
 
     color: #aaa;
 
-    margin-bottom: 20px;
-
 }
 
 
@@ -121,17 +119,19 @@ body {
 
     padding: 15px;
 
-    border-radius: 10px;
+    margin-top: 10px;
+
+    background: #050505;
+
+    color: white;
 
     border:
         1px solid
         #555;
 
+    border-radius: 10px;
+
     outline: none;
-
-    background: #050505;
-
-    color: white;
 
     font-size: 17px;
 
@@ -140,7 +140,8 @@ body {
 
 .loginBox input:focus {
 
-    border-color: #2196f3;
+    border-color:
+        #2196f3;
 
 }
 
@@ -149,15 +150,16 @@ body {
 
     width: 100%;
 
-    margin-top: 12px;
-
     padding: 15px;
+
+    margin-top: 12px;
 
     border: none;
 
     border-radius: 10px;
 
-    background: #1976d2;
+    background:
+        #1976d2;
 
     color: white;
 
@@ -172,18 +174,19 @@ body {
 
 .mainButton:hover {
 
-    background: #2196f3;
+    background:
+        #2196f3;
 
 }
 
 
 #error {
 
+    min-height: 20px;
+
     margin-top: 15px;
 
-    color: #ff4444;
-
-    min-height: 20px;
+    color: #ff3333;
 
 }
 
@@ -203,7 +206,7 @@ body {
     width: 100%;
     height: 100%;
 
-    background: black;
+    background: #000;
 
     object-fit: contain;
 
@@ -219,12 +222,11 @@ body {
 
     position: absolute;
 
-    top: 0;
     left: 0;
+    top: 0;
 
     width: 100%;
-
-    height: 60px;
+    height: 65px;
 
     padding:
         0 20px;
@@ -235,21 +237,13 @@ body {
 
     justify-content: space-between;
 
-    z-index: 20;
+    z-index: 100;
 
     background:
         linear-gradient(
-            rgba(0,0,0,0.85),
-            rgba(0,0,0,0)
+            rgba(0,0,0,.85),
+            transparent
         );
-
-}
-
-
-.cameraTop b,
-.monitorTop b {
-
-    font-size: 16px;
 
 }
 
@@ -259,13 +253,11 @@ body {
 
     font-family: monospace;
 
-    font-size: 15px;
-
 }
 
 
 /* =========================================================
-   CONNECTION MESSAGE
+   CONNECTION
 ========================================================= */
 
 .connection {
@@ -274,22 +266,20 @@ body {
 
     left: 50%;
 
-    bottom: 105px;
+    bottom: 110px;
 
     transform:
         translateX(-50%);
 
     padding:
-        9px 18px;
+        8px 18px;
 
     border-radius: 20px;
 
     background:
-        rgba(0,0,0,0.75);
+        rgba(0,0,0,.8);
 
-    color: white;
-
-    z-index: 30;
+    z-index: 200;
 
     white-space: nowrap;
 
@@ -297,14 +287,16 @@ body {
 
 
 /* =========================================================
-   CAMERA CONTROLS
+   CONTROLS
 ========================================================= */
 
-.cameraButtons {
+.cameraControls,
+.monitorControls {
 
     position: absolute;
 
     left: 0;
+
     bottom: 20px;
 
     width: 100%;
@@ -317,21 +309,28 @@ body {
 
     gap: 10px;
 
-    z-index: 100;
+    z-index: 99999;
+
+    pointer-events: auto;
 
 }
 
 
-.cameraButtons button {
+/* =========================================================
+   NORMAL BUTTON
+========================================================= */
+
+.controlButton {
 
     padding:
-        14px 20px;
+        15px 20px;
 
     border: none;
 
     border-radius: 10px;
 
-    background: #333;
+    background:
+        #333;
 
     color: white;
 
@@ -341,91 +340,23 @@ body {
 
     cursor: pointer;
 
-}
-
-
-.cameraButtons button:hover {
-
-    background: #444;
+    touch-action: manipulation;
 
 }
 
 
-/* =========================================================
-   MONITOR CONTROLS
-========================================================= */
-
-.monitorButtons {
-
-    position: absolute;
-
-    left: 0;
-    bottom: 20px;
-
-    width: 100%;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    gap: 10px;
-
-    z-index: 100;
-
-}
-
-
-.monitorButtons button {
-
-    padding:
-        14px 20px;
-
-    border: none;
-
-    border-radius: 10px;
-
-    background: #333;
-
-    color: white;
-
-    font-size: 14px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-}
-
-
-.monitorButtons button:hover {
-
-    background: #444;
-
-}
-
-
-/* =========================================================
-   DISCONNECT
-========================================================= */
-
-.disconnect {
+.controlButton:hover {
 
     background:
-        #d40000 !important;
-
-    border:
-        2px solid
-        #ff6666 !important;
+        #444;
 
 }
 
 
-.disconnect:hover {
+.controlButton:active {
 
-    background:
-        #ff2222 !important;
+    transform:
+        scale(.95);
 
 }
 
@@ -434,56 +365,90 @@ body {
    ATTENTION
 ========================================================= */
 
-.attention {
+.attentionButton {
+
+    padding:
+        15px 20px;
+
+    border: none;
+
+    border-radius: 10px;
 
     background:
-        #b00000 !important;
+        #a00000;
+
+    color: white;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    touch-action: manipulation;
 
 }
 
 
-.attention:hover {
+.attentionButton:hover {
 
     background:
-        #d00000 !important;
+        #d00000;
 
 }
 
 
-.attention.active {
+.attentionButton.active {
 
     background:
-        #ff5500 !important;
-
-    transform:
-        scale(1.05);
+        #ff5500;
 
 }
 
 
 /* =========================================================
-   LIVE
+   DISCONNECT
 ========================================================= */
 
-.live {
-
-    position: absolute;
-
-    top: 70px;
-    left: 20px;
-
-    z-index: 40;
+.disconnectButton {
 
     padding:
-        7px 12px;
+        15px 20px;
 
-    border-radius: 7px;
+    border:
+        2px solid
+        #ff7777;
 
-    background: red;
+    border-radius: 10px;
+
+    background:
+        #d00000;
 
     color: white;
 
+    font-size: 14px;
+
     font-weight: bold;
+
+    cursor: pointer;
+
+    touch-action: manipulation;
+
+}
+
+
+.disconnectButton:hover {
+
+    background:
+        #ff0000;
+
+}
+
+
+.disconnectButton:active {
+
+    transform:
+        scale(.93);
 
 }
 
@@ -496,16 +461,14 @@ body {
 
     position: absolute;
 
-    top: 50%;
     left: 50%;
+    top: 50%;
 
     transform:
         translate(
             -50%,
             -50%
         );
-
-    z-index: 10;
 
     text-align: center;
 
@@ -514,6 +477,34 @@ body {
     font-size: 22px;
 
     line-height: 1.8;
+
+    z-index: 20;
+
+}
+
+
+/* =========================================================
+   LIVE
+========================================================= */
+
+.live {
+
+    position: absolute;
+
+    left: 20px;
+    top: 75px;
+
+    padding:
+        8px 12px;
+
+    background:
+        red;
+
+    border-radius: 8px;
+
+    font-weight: bold;
+
+    z-index: 200;
 
 }
 
@@ -529,11 +520,11 @@ body {
     left: 5px;
     bottom: 3px;
 
-    z-index: 200;
+    font-size: 10px;
 
     color: #777;
 
-    font-size: 10px;
+    z-index: 999999;
 
 }
 
@@ -545,24 +536,25 @@ body {
 @media
 (max-width: 600px) {
 
-    .cameraButtons,
-    .monitorButtons {
+    .cameraControls,
+    .monitorControls {
 
         bottom: 15px;
 
         padding:
-            0 10px;
+            0 5px;
 
-        flex-wrap: wrap;
+        gap: 6px;
 
     }
 
 
-    .cameraButtons button,
-    .monitorButtons button {
+    .controlButton,
+    .attentionButton,
+    .disconnectButton {
 
         padding:
-            12px 14px;
+            12px 10px;
 
         font-size: 12px;
 
