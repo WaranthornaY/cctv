@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -15,14 +13,11 @@
     <link rel="stylesheet" href="style.css">
 
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-
 </head>
 
 <body>
 
 <div class="app">
-
-    <!-- TOP BAR -->
 
     <div class="topbar">
 
@@ -39,10 +34,7 @@
 
     <main>
 
-
-        <!-- ============================== -->
         <!-- LOGIN -->
-        <!-- ============================== -->
 
         <section id="loginScreen" class="screen">
 
@@ -65,59 +57,33 @@
 
                     <button
                         id="cameraButton"
-                        class="role camera"
+                        class="role"
                     >
-
-                        <span class="roleIcon">
-                            📱
-                        </span>
-
-                        <span>
-                            Camera
-                        </span>
-
-                        <small>
-                            Use this device as the camera
-                        </small>
-
+                        <span class="roleIcon">📱</span>
+                        <span>Camera</span>
+                        <small>Use this device as camera</small>
                     </button>
 
 
                     <button
                         id="monitorButton"
-                        class="role monitor"
+                        class="role"
                     >
-
-                        <span class="roleIcon">
-                            🖥️
-                        </span>
-
-                        <span>
-                            Monitor
-                        </span>
-
-                        <small>
-                            Watch the camera
-                        </small>
-
+                        <span class="roleIcon">🖥️</span>
+                        <span>Monitor</span>
+                        <small>Watch the camera</small>
                     </button>
 
                 </div>
 
-                <div
-                    id="error"
-                    class="error"
-                ></div>
+                <div id="error" class="error"></div>
 
             </div>
 
         </section>
 
 
-
-        <!-- ============================== -->
-        <!-- PHONE CAMERA -->
-        <!-- ============================== -->
+        <!-- PHONE -->
 
         <section
             id="cameraScreen"
@@ -176,10 +142,7 @@
         </section>
 
 
-
-        <!-- ============================== -->
-        <!-- LAPTOP MONITOR -->
-        <!-- ============================== -->
+        <!-- LAPTOP -->
 
         <section
             id="monitorScreen"
@@ -208,8 +171,7 @@
 
                     <p>
                         Open this website on the phone,
-                        select Camera, and enter the
-                        same password.
+                        select Camera, and use the same password.
                     </p>
 
                 </div>
@@ -234,20 +196,10 @@
             </div>
 
 
-            <!-- LAPTOP CONTROLS -->
-
             <div class="controls">
 
                 <button id="fullscreen">
                     ⛶ Fullscreen
-                </button>
-
-
-                <button
-                    id="talkButton"
-                    class="talkButton"
-                >
-                    🎤 Hold to Speak
                 </button>
 
 
@@ -278,5 +230,4 @@
 <script src="script.js"></script>
 
 </body>
-
 </html>

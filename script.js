@@ -1,18 +1,16 @@
 // ============================================================
 // WEB CCTV
 //
-// PHONE:
-//   - Camera
-//   - Microphone
-//   - Receives laptop microphone while laptop talks
-//   - Receives ATTENTION commands
+// PHONE
+//   Camera + microphone -> Laptop
+//   Receives ATTENTION command
 //
-// LAPTOP:
-//   - Monitor
-//   - Microphone
-//   - Hold to speak
-//   - ATTENTION button
+// LAPTOP
+//   Watches camera
+//   ATTENTION -> Phone
 //
+// NO PUSH TO TALK
+// NO INTERCOM
 // ============================================================
 
 
@@ -30,11 +28,7 @@ let currentRole = null;
 
 let usingFrontCamera = false;
 
-let monitorMicStream = null;
-
-let phoneAudioElement = null;
-
-let phoneIntercomAudio = null;
+let phoneAudioContext = null;
 
 
 // ============================================================
@@ -80,15 +74,12 @@ const cameraConnection =
 const monitorLive =
     document.getElementById("monitorLive");
 
-const talkButton =
-    document.getElementById("talkButton");
-
 const attentionButton =
     document.getElementById("attentionButton");
 
 
 // ============================================================
-// PASSWORD HASH
+// PASSWORD
 // ============================================================
 
 function hashPassword(text) {
@@ -109,15 +100,20 @@ function hashPassword(text) {
             (hash << 7) +
             (hash << 8) +
             (hash << 24);
+
     }
 
-    return Math.abs(hash >>> 0).toString(36);
+    return Math.abs(
+        hash >>> 0
+    ).toString(36);
+
 }
 
 
 function getRoomId(password) {
 
-    return "cctv_" + hashPassword(password);
+    return "cctv_" +
+        hashPassword(password);
 
 }
 
@@ -128,7 +124,8 @@ function getRoomId(password) {
 
 function showError(message) {
 
-    errorBox.textContent = message;
+    errorBox.textContent =
+        message;
 
 }
 
@@ -142,15 +139,22 @@ function setStatus(
     online = false
 ) {
 
-    statusText.textContent = text;
+    statusText.textContent =
+        text;
 
     if (online) {
 
-        statusText.classList.add("online");
+        statusText.classList.add(
+            "online"
+        );
 
-    } else {
+    }
 
-        statusText.classList.remove("online");
+    else {
+
+        statusText.classList.remove(
+            "online"
+        );
 
     }
 
@@ -158,7 +162,7 @@ function setStatus(
 
 
 // ============================================================
-// CAMERA LOGIN
+// CAMERA BUTTON
 // ============================================================
 
 cameraButton.addEventListener(
@@ -176,6 +180,7 @@ cameraButton.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -186,10 +191,13 @@ cameraButton.addEventListener(
             );
 
             return;
+
         }
 
 
-        currentRole = "camera";
+        currentRole =
+            "camera";
+
 
         roomId =
             getRoomId(password);
@@ -220,7 +228,7 @@ cameraButton.addEventListener(
 
 
 // ============================================================
-// MONITOR LOGIN
+// MONITOR BUTTON
 // ============================================================
 
 monitorButton.addEventListener(
@@ -238,6 +246,7 @@ monitorButton.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -248,10 +257,13 @@ monitorButton.addEventListener(
             );
 
             return;
+
         }
 
 
-        currentRole = "monitor";
+        currentRole =
+            "monitor";
+
 
         roomId =
             getRoomId(password);
@@ -290,7 +302,8 @@ async function startCamera() {
     try {
 
         localStream =
-            await navigator.mediaDevices
+            await navigator
+                .mediaDevices
                 .getUserMedia({
 
                     video: {
@@ -321,6 +334,12 @@ async function startCamera() {
             localStream;
 
 
+        // Prepare audio after the user
+        // clicked the Camera button.
+
+        await preparePhoneAudio();
+
+
         setStatus(
             "WAITING",
             true
@@ -349,7 +368,7 @@ async function startCamera() {
 
 
         cameraConnection.textContent =
-            "Camera permission was denied or unavailable.";
+            "Could not access camera.";
 
 
         alert(
@@ -363,7 +382,63 @@ async function startCamera() {
 
 
 // ============================================================
-// CREATE PHONE PEER
+// PREPARE PHONE AUDIO
+// ============================================================
+
+async function preparePhoneAudio() {
+
+    try {
+
+        const AudioContext =
+            window.AudioContext ||
+            window.webkitAudioContext;
+
+
+        if (!AudioContext) {
+
+            console.log(
+                "Web Audio is not supported."
+            );
+
+            return;
+
+        }
+
+
+        phoneAudioContext =
+            new AudioContext();
+
+
+        if (
+            phoneAudioContext.state ===
+            "suspended"
+        ) {
+
+            await phoneAudioContext.resume();
+
+        }
+
+
+        console.log(
+            "Phone audio ready."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Audio initialization error:",
+            error
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// PHONE PEER
 // ============================================================
 
 function createCameraPeer() {
@@ -386,7 +461,7 @@ function createCameraPeer() {
         id => {
 
             console.log(
-                "Phone peer ready:",
+                "Camera ready:",
                 id
             );
 
@@ -401,7 +476,7 @@ function createCameraPeer() {
 
 
     // ========================================================
-    // RECEIVE MEDIA CALL FROM LAPTOP
+    // MEDIA CALL
     // ========================================================
 
     peer.on(
@@ -409,7 +484,7 @@ function createCameraPeer() {
         call => {
 
             console.log(
-                "Laptop media connection!"
+                "Laptop connected."
             );
 
 
@@ -417,7 +492,8 @@ function createCameraPeer() {
                 call;
 
 
-            // Send phone camera + microphone
+            // Send camera + microphone
+
             call.answer(
                 localStream
             );
@@ -433,46 +509,12 @@ function createCameraPeer() {
             );
 
 
-            // Laptop microphone arrives here
-            call.on(
-                "stream",
-                stream => {
-
-                    console.log(
-                        "Laptop audio received."
-                    );
-
-
-                    playPhoneAudio(
-                        stream
-                    );
-
-                }
-            );
-
-
             call.on(
                 "close",
                 () => {
 
-                    console.log(
-                        "Media call closed."
-                    );
-
-
                     currentCall =
                         null;
-
-
-                    if (
-                        phoneIntercomAudio
-                    ) {
-
-                        phoneIntercomAudio
-                            .srcObject =
-                            null;
-
-                    }
 
 
                     setStatus(
@@ -493,7 +535,7 @@ function createCameraPeer() {
                 error => {
 
                     console.error(
-                        "Media call error:",
+                        "Call error:",
                         error
                     );
 
@@ -505,7 +547,7 @@ function createCameraPeer() {
 
 
     // ========================================================
-    // RECEIVE CONTROL CONNECTION
+    // DATA CONNECTION
     // ========================================================
 
     peer.on(
@@ -513,7 +555,7 @@ function createCameraPeer() {
         connection => {
 
             console.log(
-                "Laptop control connection!"
+                "Laptop control connection."
             );
 
 
@@ -529,8 +571,12 @@ function createCameraPeer() {
                         "Control channel ready."
                     );
 
+
                     connection.send({
-                        type: "PHONE_READY"
+
+                        type:
+                            "PHONE_READY"
+
                     });
 
                 }
@@ -541,7 +587,7 @@ function createCameraPeer() {
                 "data",
                 data => {
 
-                    handlePhoneCommand(
+                    handleCommand(
                         data
                     );
 
@@ -556,14 +602,6 @@ function createCameraPeer() {
                     controlConnection =
                         null;
 
-
-                    // If laptop disconnects,
-                    // immediately disable phone mic.
-
-                    setPhoneMicrophone(
-                        false
-                    );
-
                 }
             );
 
@@ -576,7 +614,7 @@ function createCameraPeer() {
         error => {
 
             console.error(
-                "Phone peer error:",
+                "Peer error:",
                 error
             );
 
@@ -593,7 +631,9 @@ function createCameraPeer() {
                     "BUSY"
                 );
 
-            } else {
+            }
+
+            else {
 
                 setStatus(
                     "ERROR"
@@ -620,10 +660,10 @@ function createCameraPeer() {
 
 
 // ============================================================
-// PHONE: HANDLE LAPTOP COMMANDS
+// PHONE COMMAND HANDLER
 // ============================================================
 
-function handlePhoneCommand(data) {
+function handleCommand(data) {
 
     if (!data) {
         return;
@@ -631,144 +671,326 @@ function handlePhoneCommand(data) {
 
 
     console.log(
-        "Phone command:",
+        "Command received:",
         data
     );
 
 
-    // ========================================================
-    // LAPTOP STARTED TALKING
-    // ========================================================
-
     if (
-        data.type === "TALK_ON"
-    ) {
-
-        // Phone is allowed to speak
-        setPhoneMicrophone(
-            true
-        );
-
-        return;
-    }
-
-
-    // ========================================================
-    // LAPTOP STOPPED TALKING
-    // ========================================================
-
-    if (
-        data.type === "TALK_OFF"
-    ) {
-
-        // Phone microphone immediately disabled
-        setPhoneMicrophone(
-            false
-        );
-
-        return;
-    }
-
-
-    // ========================================================
-    // ATTENTION
-    // ========================================================
-
-    if (
-        data.type === "ATTENTION"
+        data.type ===
+        "ATTENTION"
     ) {
 
         attentionAlert();
 
-        return;
     }
 
 }
 
 
 // ============================================================
-// PHONE MICROPHONE ENABLE / DISABLE
+// ATTENTION
 // ============================================================
 
-function setPhoneMicrophone(enabled) {
+async function attentionAlert() {
+
+    console.log(
+        "⚠️ ATTENTION RECEIVED"
+    );
+
+
+    // Make both happen.
+
+    await playAttentionSound();
+
+    await flashPhone();
+
+}
+
+
+// ============================================================
+// BEEP
+// ============================================================
+
+async function playAttentionSound() {
+
+    try {
+
+        if (!phoneAudioContext) {
+
+            await preparePhoneAudio();
+
+        }
+
+
+        if (!phoneAudioContext) {
+
+            return;
+
+        }
+
+
+        if (
+            phoneAudioContext.state ===
+            "suspended"
+        ) {
+
+            await phoneAudioContext.resume();
+
+        }
+
+
+        beep(
+            880,
+            0
+        );
+
+
+        beep(
+            880,
+            180
+        );
+
+
+        beep(
+            1100,
+            360
+        );
+
+
+        console.log(
+            "Attention sound played."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Beep failed:",
+            error
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// CREATE BEEP
+// ============================================================
+
+function beep(
+    frequency,
+    delay
+) {
+
+    setTimeout(
+        () => {
+
+            if (!phoneAudioContext) {
+                return;
+            }
+
+
+            const oscillator =
+                phoneAudioContext
+                    .createOscillator();
+
+
+            const gain =
+                phoneAudioContext
+                    .createGain();
+
+
+            oscillator.type =
+                "sine";
+
+
+            oscillator.frequency.value =
+                frequency;
+
+
+            gain.gain.setValueAtTime(
+                0.0001,
+                phoneAudioContext.currentTime
+            );
+
+
+            gain.gain.exponentialRampToValueAtTime(
+                0.5,
+                phoneAudioContext.currentTime + 0.01
+            );
+
+
+            gain.gain.exponentialRampToValueAtTime(
+                0.0001,
+                phoneAudioContext.currentTime + 0.18
+            );
+
+
+            oscillator.connect(
+                gain
+            );
+
+
+            gain.connect(
+                phoneAudioContext.destination
+            );
+
+
+            oscillator.start();
+
+
+            oscillator.stop(
+                phoneAudioContext.currentTime +
+                0.19
+            );
+
+        },
+        delay
+    );
+
+}
+
+
+// ============================================================
+// FLASH PHONE
+// ============================================================
+
+async function flashPhone() {
 
     if (!localStream) {
+
+        console.log(
+            "No camera stream."
+        );
+
         return;
+
     }
 
 
     const tracks =
-        localStream.getAudioTracks();
+        localStream
+            .getVideoTracks();
 
 
-    tracks.forEach(
-        track => {
+    if (!tracks.length) {
 
-            track.enabled =
-                enabled;
+        console.log(
+            "No video track."
+        );
 
-        }
-    );
+        return;
+
+    }
+
+
+    const track =
+        tracks[0];
+
+
+    // Get camera capabilities.
+
+    let capabilities = {};
+
+
+    if (
+        typeof track.getCapabilities ===
+        "function"
+    ) {
+
+        capabilities =
+            track.getCapabilities();
+
+    }
 
 
     console.log(
-        "Phone microphone:",
-        enabled ? "ON" : "OFF"
+        "Camera capabilities:",
+        capabilities
     );
+
+
+    if (
+        !capabilities.torch
+    ) {
+
+        console.log(
+            "This phone/browser does not expose torch control."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        // FLASH ON
+
+        await track.applyConstraints({
+
+            advanced: [
+                {
+                    torch: true
+                }
+            ]
+
+        });
+
+
+        await sleep(250);
+
+
+        // FLASH OFF
+
+        await track.applyConstraints({
+
+            advanced: [
+                {
+                    torch: false
+                }
+            ]
+
+        });
+
+
+        console.log(
+            "🔦 Flash complete."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Flashlight error:",
+            error
+        );
+
+    }
 
 }
 
 
 // ============================================================
-// PHONE AUDIO FROM LAPTOP
+// SLEEP
 // ============================================================
 
-function playPhoneAudio(stream) {
+function sleep(ms) {
 
-    if (
-        !phoneIntercomAudio
-    ) {
+    return new Promise(
+        resolve => {
 
-        phoneIntercomAudio =
-            document.createElement(
-                "audio"
+            setTimeout(
+                resolve,
+                ms
             );
 
-
-        phoneIntercomAudio.id =
-            "phoneIntercomAudio";
-
-
-        phoneIntercomAudio.autoplay =
-            true;
-
-
-        phoneIntercomAudio.playsInline =
-            true;
-
-
-        document.body.appendChild(
-            phoneIntercomAudio
-        );
-
-    }
-
-
-    phoneIntercomAudio.srcObject =
-        stream;
-
-
-    phoneIntercomAudio.play()
-        .catch(
-            error => {
-
-                console.log(
-                    "Audio playback waiting:",
-                    error
-                );
-
-            }
-        );
+        }
+    );
 
 }
 
@@ -778,52 +1000,6 @@ function playPhoneAudio(stream) {
 // ============================================================
 
 async function startMonitor() {
-
-    try {
-
-        // Laptop microphone
-        monitorMicStream =
-            await navigator.mediaDevices
-                .getUserMedia({
-
-                    audio: true,
-
-                    video: false
-
-                });
-
-
-        // Start MUTED
-        monitorMicStream
-            .getAudioTracks()
-            .forEach(
-                track => {
-
-                    track.enabled =
-                        false;
-
-                }
-            );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Microphone error:",
-            error
-        );
-
-
-        alert(
-            "Microphone permission is required for push-to-talk."
-        );
-
-
-        return;
-
-    }
-
 
     const monitorPeerId =
         roomId +
@@ -847,7 +1023,7 @@ async function startMonitor() {
         () => {
 
             console.log(
-                "Laptop peer ready."
+                "Monitor ready."
             );
 
 
@@ -868,7 +1044,7 @@ async function startMonitor() {
         error => {
 
             console.error(
-                "Laptop peer error:",
+                "Monitor error:",
                 error
             );
 
@@ -896,7 +1072,7 @@ async function startMonitor() {
 
 
 // ============================================================
-// CONNECT LAPTOP TO PHONE
+// CONNECT LAPTOP TO CAMERA
 // ============================================================
 
 function connectToCamera() {
@@ -906,19 +1082,22 @@ function connectToCamera() {
 
 
     console.log(
-        "Connecting to camera:",
+        "Connecting to:",
         cameraPeerId
     );
 
 
     // ========================================================
-    // MEDIA CONNECTION
+    // MEDIA
     // ========================================================
 
     currentCall =
         peer.call(
             cameraPeerId,
-            monitorMicStream
+
+            // No laptop microphone!
+            // We don't need it anymore.
+            undefined
         );
 
 
@@ -939,7 +1118,7 @@ function connectToCamera() {
         stream => {
 
             console.log(
-                "CCTV stream received!"
+                "CCTV stream received."
             );
 
 
@@ -997,13 +1176,8 @@ function connectToCamera() {
         error => {
 
             console.error(
-                "Media call error:",
+                "Media error:",
                 error
-            );
-
-
-            setStatus(
-                "CONNECTION ERROR"
             );
 
         }
@@ -1011,7 +1185,7 @@ function connectToCamera() {
 
 
     // ========================================================
-    // CONTROL DATA CONNECTION
+    // CONTROL CHANNEL
     // ========================================================
 
     controlConnection =
@@ -1028,7 +1202,7 @@ function connectToCamera() {
         () => {
 
             console.log(
-                "Control connection ready."
+                "Attention control ready."
             );
 
         }
@@ -1039,17 +1213,10 @@ function connectToCamera() {
         "data",
         data => {
 
-            if (
-                data &&
-                data.type ===
-                    "PHONE_READY"
-            ) {
-
-                console.log(
-                    "Phone control ready."
-                );
-
-            }
+            console.log(
+                "Control response:",
+                data
+            );
 
         }
     );
@@ -1066,193 +1233,6 @@ function connectToCamera() {
         }
     );
 
-
-    controlConnection.on(
-        "error",
-        error => {
-
-            console.error(
-                "Control connection error:",
-                error
-            );
-
-        }
-    );
-
-}
-
-
-// ============================================================
-// LAPTOP TALKING
-// ============================================================
-
-function setTalking(enabled) {
-
-    if (!monitorMicStream) {
-        return;
-    }
-
-
-    const tracks =
-        monitorMicStream
-            .getAudioTracks();
-
-
-    tracks.forEach(
-        track => {
-
-            track.enabled =
-                enabled;
-
-        }
-    );
-
-
-    // Tell phone whether it is allowed
-    // to use its microphone.
-
-    if (
-        controlConnection &&
-        controlConnection.open
-    ) {
-
-        controlConnection.send({
-
-            type:
-                enabled
-                    ? "TALK_ON"
-                    : "TALK_OFF"
-
-        });
-
-    }
-
-
-    if (enabled) {
-
-        talkButton
-            .classList
-            .add("talking");
-
-
-        talkButton.textContent =
-            "🎤 SPEAKING";
-
-
-        console.log(
-            "Laptop microphone ON"
-        );
-
-    }
-
-    else {
-
-        talkButton
-            .classList
-            .remove("talking");
-
-
-        talkButton.textContent =
-            "🎤 Hold to Speak";
-
-
-        console.log(
-            "Laptop microphone OFF"
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// PUSH TO TALK - MOUSE
-// ============================================================
-
-if (talkButton) {
-
-    talkButton.addEventListener(
-        "mousedown",
-        event => {
-
-            event.preventDefault();
-
-            setTalking(true);
-
-        }
-    );
-
-
-    talkButton.addEventListener(
-        "mouseup",
-        event => {
-
-            event.preventDefault();
-
-            setTalking(false);
-
-        }
-    );
-
-
-    talkButton.addEventListener(
-        "mouseleave",
-        () => {
-
-            setTalking(false);
-
-        }
-    );
-
-
-    // ========================================================
-    // TOUCH
-    // ========================================================
-
-    talkButton.addEventListener(
-        "touchstart",
-        event => {
-
-            event.preventDefault();
-
-            setTalking(true);
-
-        },
-        {
-            passive: false
-        }
-    );
-
-
-    talkButton.addEventListener(
-        "touchend",
-        event => {
-
-            event.preventDefault();
-
-            setTalking(false);
-
-        },
-        {
-            passive: false
-        }
-    );
-
-
-    talkButton.addEventListener(
-        "touchcancel",
-        event => {
-
-            event.preventDefault();
-
-            setTalking(false);
-
-        },
-        {
-            passive: false
-        }
-    );
-
 }
 
 
@@ -1260,22 +1240,18 @@ if (talkButton) {
 // ATTENTION BUTTON
 // ============================================================
 
-if (attentionButton) {
+attentionButton.addEventListener(
+    "click",
+    () => {
 
-    attentionButton.addEventListener(
-        "click",
-        () => {
+        sendAttention();
 
-            sendAttention();
-
-        }
-    );
-
-}
+    }
+);
 
 
 // ============================================================
-// SEND ATTENTION TO PHONE
+// SEND ATTENTION
 // ============================================================
 
 function sendAttention() {
@@ -1289,6 +1265,22 @@ function sendAttention() {
             "Phone is not connected."
         );
 
+
+        attentionButton.textContent =
+            "❌ NOT CONNECTED";
+
+
+        setTimeout(
+            () => {
+
+                attentionButton.textContent =
+                    "⚠️ ATTENTION";
+
+            },
+            1000
+        );
+
+
         return;
 
     }
@@ -1301,14 +1293,15 @@ function sendAttention() {
 
     controlConnection.send({
 
-        type: "ATTENTION",
+        type:
+            "ATTENTION",
 
-        time: Date.now()
+        timestamp:
+            Date.now()
 
     });
 
 
-    // Visual feedback
     attentionButton
         .classList
         .add("active");
@@ -1337,288 +1330,7 @@ function sendAttention() {
 
 
 // ============================================================
-// PHONE ATTENTION
-// ============================================================
-
-async function attentionAlert() {
-
-    console.log(
-        "ATTENTION RECEIVED!"
-    );
-
-
-    // --------------------------------------------------------
-    // BEEP
-    // --------------------------------------------------------
-
-    try {
-
-        const AudioContext =
-            window.AudioContext ||
-            window.webkitAudioContext;
-
-
-        const audioContext =
-            new AudioContext();
-
-
-        if (
-            audioContext.state ===
-            "suspended"
-        ) {
-
-            await audioContext.resume();
-
-        }
-
-
-        // Two quick beeps
-
-        beep(
-            audioContext,
-            880,
-            0
-        );
-
-
-        beep(
-            audioContext,
-            880,
-            180
-        );
-
-
-        setTimeout(
-            () => {
-
-                audioContext.close();
-
-            },
-            600
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Beep error:",
-            error
-        );
-
-    }
-
-
-    // --------------------------------------------------------
-    // FLASH
-    // --------------------------------------------------------
-
-    await flashPhoneLight();
-
-}
-
-
-// ============================================================
-// BEEP
-// ============================================================
-
-function beep(
-    audioContext,
-    frequency,
-    delay
-) {
-
-    setTimeout(
-        () => {
-
-            const oscillator =
-                audioContext
-                    .createOscillator();
-
-
-            const gain =
-                audioContext
-                    .createGain();
-
-
-            oscillator.type =
-                "sine";
-
-
-            oscillator.frequency.value =
-                frequency;
-
-
-            gain.gain.setValueAtTime(
-                0.0001,
-                audioContext.currentTime
-            );
-
-
-            gain.gain.exponentialRampToValueAtTime(
-                0.4,
-                audioContext.currentTime + 0.01
-            );
-
-
-            gain.gain.exponentialRampToValueAtTime(
-                0.0001,
-                audioContext.currentTime + 0.12
-            );
-
-
-            oscillator.connect(
-                gain
-            );
-
-
-            gain.connect(
-                audioContext.destination
-            );
-
-
-            oscillator.start();
-
-
-            oscillator.stop(
-                audioContext.currentTime + 0.13
-            );
-
-        },
-        delay
-    );
-
-}
-
-
-// ============================================================
-// PHONE FLASHLIGHT
-// ============================================================
-
-async function flashPhoneLight() {
-
-    if (!localStream) {
-
-        console.log(
-            "No camera stream."
-        );
-
-        return;
-
-    }
-
-
-    const videoTracks =
-        localStream.getVideoTracks();
-
-
-    if (
-        videoTracks.length === 0
-    ) {
-
-        console.log(
-            "No video track."
-        );
-
-        return;
-
-    }
-
-
-    const track =
-        videoTracks[0];
-
-
-    // Check whether torch exists
-    const capabilities =
-        track.getCapabilities
-            ? track.getCapabilities()
-            : {};
-
-
-    if (
-        !capabilities.torch
-    ) {
-
-        console.log(
-            "Torch control is not supported by this browser/device."
-        );
-
-        return;
-
-    }
-
-
-    try {
-
-        // ON
-
-        await track.applyConstraints({
-
-            advanced: [
-                {
-                    torch: true
-                }
-            ]
-
-        });
-
-
-        // Keep it on briefly
-
-        await sleep(250);
-
-
-        // OFF
-
-        await track.applyConstraints({
-
-            advanced: [
-                {
-                    torch: false
-                }
-            ]
-
-        });
-
-
-        console.log(
-            "Phone flashlight flashed."
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Torch error:",
-            error
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// SLEEP
-// ============================================================
-
-function sleep(ms) {
-
-    return new Promise(
-        resolve =>
-            setTimeout(
-                resolve,
-                ms
-            )
-    );
-
-}
-
-
-// ============================================================
-// SWITCH PHONE CAMERA
+// SWITCH CAMERA
 // ============================================================
 
 document
@@ -1628,9 +1340,7 @@ document
         async () => {
 
             if (!localStream) {
-
                 return;
-
             }
 
 
@@ -1641,8 +1351,6 @@ document
             const oldStream =
                 localStream;
 
-
-            // Stop old video camera first
 
             oldStream
                 .getVideoTracks()
@@ -1658,7 +1366,8 @@ document
             try {
 
                 const newStream =
-                    await navigator.mediaDevices
+                    await navigator
+                        .mediaDevices
                         .getUserMedia({
 
                             video: {
@@ -1695,8 +1404,6 @@ document
                     newStream;
 
 
-                // Replace tracks in active call
-
                 if (
                     currentCall &&
                     currentCall.peerConnection
@@ -1708,12 +1415,12 @@ document
                             .getSenders();
 
 
-                    const newVideoTrack =
+                    const videoTrack =
                         newStream
                             .getVideoTracks()[0];
 
 
-                    const newAudioTrack =
+                    const audioTrack =
                         newStream
                             .getAudioTracks()[0];
 
@@ -1726,12 +1433,12 @@ document
                         if (
                             sender.track &&
                             sender.track.kind ===
-                                "video"
+                            "video"
                         ) {
 
                             await sender
                                 .replaceTrack(
-                                    newVideoTrack
+                                    videoTrack
                                 );
 
                         }
@@ -1740,12 +1447,12 @@ document
                         if (
                             sender.track &&
                             sender.track.kind ===
-                                "audio"
+                            "audio"
                         ) {
 
                             await sender
                                 .replaceTrack(
-                                    newAudioTrack
+                                    audioTrack
                                 );
 
                         }
@@ -1769,57 +1476,13 @@ document
                 );
 
 
-                // Restore previous camera
-
                 usingFrontCamera =
                     !usingFrontCamera;
 
 
-                try {
-
-                    const restoredStream =
-                        await navigator.mediaDevices
-                            .getUserMedia({
-
-                                video: {
-
-                                    facingMode: {
-
-                                        ideal:
-                                            usingFrontCamera
-                                                ? "user"
-                                                : "environment"
-
-                                    }
-
-                                },
-
-                                audio: true
-
-                            });
-
-
-                    localStream =
-                        restoredStream;
-
-
-                    localVideo.srcObject =
-                        restoredStream;
-
-                }
-
-                catch (restoreError) {
-
-                    console.error(
-                        restoreError
-                    );
-
-
-                    alert(
-                        "Could not switch camera."
-                    );
-
-                }
+                alert(
+                    "Could not switch camera."
+                );
 
             }
 
@@ -1896,17 +1559,10 @@ document
 
 
 // ============================================================
-// DISCONNECT EVERYTHING
+// DISCONNECT
 // ============================================================
 
 function disconnectEverything() {
-
-    // Stop talking first
-
-    setTalking(false);
-
-
-    // Close control connection
 
     if (controlConnection) {
 
@@ -1924,8 +1580,6 @@ function disconnectEverything() {
     }
 
 
-    // Close media call
-
     if (currentCall) {
 
         try {
@@ -1941,8 +1595,6 @@ function disconnectEverything() {
 
     }
 
-
-    // Stop phone camera
 
     if (localStream) {
 
@@ -1962,28 +1614,6 @@ function disconnectEverything() {
     }
 
 
-    // Stop laptop microphone
-
-    if (monitorMicStream) {
-
-        monitorMicStream
-            .getTracks()
-            .forEach(
-                track => {
-
-                    track.stop();
-
-                }
-            );
-
-        monitorMicStream =
-            null;
-
-    }
-
-
-    // Destroy PeerJS
-
     if (peer) {
 
         try {
@@ -2000,24 +1630,29 @@ function disconnectEverything() {
     }
 
 
-    // Clear video
+    if (phoneAudioContext) {
 
-    localVideo.srcObject =
-        null;
+        try {
 
-    remoteVideo.srcObject =
-        null;
+            phoneAudioContext.close();
 
+        }
 
-    if (phoneIntercomAudio) {
+        catch (error) {}
 
-        phoneIntercomAudio.srcObject =
+        phoneAudioContext =
             null;
 
     }
 
 
-    // Return to login
+    localVideo.srcObject =
+        null;
+
+
+    remoteVideo.srcObject =
+        null;
+
 
     cameraScreen
         .classList
@@ -2052,30 +1687,13 @@ function disconnectEverything() {
         .add("hidden");
 
 
-    if (talkButton) {
-
-        talkButton
-            .classList
-            .remove("talking");
+    attentionButton
+        .classList
+        .remove("active");
 
 
-        talkButton.textContent =
-            "🎤 Hold to Speak";
-
-    }
-
-
-    if (attentionButton) {
-
-        attentionButton
-            .classList
-            .remove("active");
-
-
-        attentionButton.textContent =
-            "⚠️ ATTENTION";
-
-    }
+    attentionButton.textContent =
+        "⚠️ ATTENTION";
 
 
     setStatus(
@@ -2138,18 +1756,6 @@ window.addEventListener(
         if (localStream) {
 
             localStream
-                .getTracks()
-                .forEach(
-                    track =>
-                        track.stop()
-                );
-
-        }
-
-
-        if (monitorMicStream) {
-
-            monitorMicStream
                 .getTracks()
                 .forEach(
                     track =>
